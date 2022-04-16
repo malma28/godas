@@ -1,0 +1,1689 @@
+{
+    "openapi":"3.0.3",
+    "info": {
+        "title":"GoDas",
+        "version":"1",
+        "description": "OpenAPI for GoDas RESTful API",
+        "license": {
+            "name": "MIT",
+            "url": "https://www.mit.edu/~amini/LICENSE.md"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://localhost:3000",
+            "description": "GoDas RESTful API Server (Localhost / Development)"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Auth"
+        },
+        {
+            "name": "User"
+        },
+        {
+            "name": "Stack"
+        }
+    ],
+    "paths": {
+        "/signup": {
+            "post": {
+                "summary": "Register new User",
+                "description": "Create a new user and register it. Web will send a code to the email for verification, after that, User must take the code and do a verification.",
+                "tags": ["Auth"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "Example 1": {
+                                    "description": "Create and register a new simple User.",
+                                    "value": {
+                                        "name": "Malma",
+                                        "email": "malma123@example.com",
+                                        "password": "secretpw"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/User"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/verification": {
+            "post": {
+                "summary": "Verify the User",
+                "description": "Verify the User with code that send to the User's email after sign up (register). After this, now you can sign in with your email.",
+                "tags": ["Auth"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "Example 1": {
+                                    "description": "Verify a simple User.",
+                                    "value": {
+                                        "email": "malma123@example.com",
+                                        "code": "RANDOM"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "code"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "minLength": 6,
+                                        "maxLength": 6
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/User"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/resend": {
+            "post": {
+                "summary": "Resend the verification's code",
+                "description": "Send the email verification's code again",
+                "tags": ["Auth"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "Example 1": {
+                                    "description": "Resend code to the simple User.",
+                                    "value": {
+                                        "email": "malma123@example.com"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OK"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/signin": {
+            "post": {
+                "summary": "Sign to the web",
+                "description": "Sign to the web with email and password, the email must be already verified. Web will send a jwt token as response data.",
+                "tags": ["Auth"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "Example 1": {
+                                    "description": "Sign with a simple User.",
+                                    "value": {
+                                        "email": "malma123@example.com",
+                                        "password": "secretpw"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": "JWT_TOKEN"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "summary": "Create new User (Only Admin)",
+                "description": "Create a new User and register it. Only work for Admin, the difference with sign up that web will not send a verification code",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "Example 1": {
+                                    "description": "Create and register a new simple User.",
+                                    "value": {
+                                        "name": "Malma",
+                                        "email": "malma123@example.com",
+                                        "password": "secretpw"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/User"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get all User",
+                "description": "Get all User",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": [
+                                                {
+                                                    "id": "314285714285714",
+                                                    "name": "Malma"
+                                                },
+                                                {
+                                                    "id": "314285714281281",
+                                                    "name": "Akin"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "summary": "Get User by Id",
+                "description": "Get User by Id",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "description": "Get a simple User by Id",
+                                "value": "/users/314285714285714"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": {
+                                                "id": "314285714285714",
+                                                "name": "Malma"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update User by Id (Only Admin)",
+                "description": "Update User by Id. Only work for Admin.",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "description": "Get a simple User by Id",
+                                "value": "/users/314285714285714"
+                            }
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "Example 1": {
+                                    "description": "Update a simple User by Id",
+                                    "value": {
+                                        "name": "Akin"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": {
+                                                "id": "314285714285714",
+                                                "name": "Akin"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete User by Id (Ony Admin)",
+                "description": "Delete User by Id. Only work for Admin.",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "description": "Delete a simple User by Id",
+                                "value": "/users/314285714285714"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {},
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": null
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/users/me": {
+            "get": {
+                "summary": "Get self",
+                "description": "Get self",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": {
+                                                "id": "314285714285714",
+                                                "name": "Malma"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update self",
+                "description": "Update self",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "Example 1": {
+                                    "value": {
+                                        "name": "Akin"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": {
+                                                "id": "314285714285714",
+                                                "name": "Akin"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete self",
+                "description": "Delete self",
+                "tags": ["User"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {},
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": null
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/stacks": {
+            "post": {
+                "summary": "Create new Stack",
+                "description": "Create new Stack.",
+                "tags": ["Stack"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Stack"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Conflict"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get all Stacks",
+                "description": "Get all your Stacks.",
+                "tags": ["Stack"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "owner": {
+                                                        "type": "string"
+                                                    },
+                                                    "items": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "index": {
+                                                                    "type": "number"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": [
+                                                {
+                                                    "code": 200,
+                                                    "status": "OK",
+                                                    "success": true,
+                                                    "data": {
+                                                        "id": "281006160422185",
+                                                        "owner": "314285714285714",
+                                                        "items": []
+                                                    }
+                                                },
+                                                {
+                                                    "code": 200,
+                                                    "status": "OK",
+                                                    "success": true,
+                                                    "data": {
+                                                        "id": "281006160408906",
+                                                        "owner": "314285714285714",
+                                                        "items": []
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        },
+        "/stacks/{id}": {
+            "get": {
+                "summary": "Get Stack by Id",
+                "description": "Get Stack by Id. You only can get your Stack.",
+                "tags": ["Stack"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": "/stacks/281006160422185"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/Stack"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Push Item to the Stack",
+                "description": "Push Item to the Stack that specified by Id. You only can push to your Stack.",
+                "tags": ["Stack"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": "/stacks/281006160422185"
+                            }
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "Example 1": {
+                                    "value": {
+                                        "name": "Hello World"
+                                    }
+                                }
+                            },
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "index": {
+                                                    "type": "number"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": {
+                                                "index": 0,
+                                                "name": "Hello World"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Pop Item from the Stack",
+                "description": "Pop Item from the Stack that specified by Id. You only can pop with with your Stack.",
+                "tags": ["Stack"],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": "/stacks/281006160422185"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number",
+                                            "default": 200
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "default": "OK"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "default": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "index": {
+                                                    "type": "number"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Example 1": {
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "success": true,
+                                            "data": {
+                                                "index": 0,
+                                                "name": "Hello World"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/InternalServerError"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "responses": {
+            "User": {
+                "description": "Success",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 200
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "OK"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 200,
+                                    "status": "OK",
+                                    "success": true,
+                                    "data": {
+                                        "id": "314285714285714",
+                                        "name": "Malma"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Stack": {
+                "description": "Success",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 200
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "OK"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "owner": {
+                                            "type": "string"
+                                        },
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "index": {
+                                                        "type": "number"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 200,
+                                    "status": "OK",
+                                    "success": true,
+                                    "data": {
+                                        "id": "281006160422185",
+                                        "owner": "314285714285714",
+                                        "items": []
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "OK": {
+                "description": "Success",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 200
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "OK"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": true
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "nullable": true,
+                                    "default": null
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 200,
+                                    "status": "OK",
+                                    "success": true,
+                                    "data": null
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "BadRequest": {
+                "description": "Failed because invalid request",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 400
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "Bad Request"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "default": null,
+                                    "nullable": true
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 400,
+                                    "status": "Bad Request",
+                                    "success": false,
+                                    "data": null
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Unauthorized": {
+                "description": "Failed because client is not already sign in / doesnt have permissions / invalid auth token / etc",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 401
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "Unauthorized"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "default": null,
+                                    "nullable": true
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 401,
+                                    "status": "Unauthorized",
+                                    "success": false,
+                                    "data": null
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "Failed because data is not found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 404
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "Not Found"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "default": null,
+                                    "nullable": true
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 404,
+                                    "status": "Not Found",
+                                    "success": false,
+                                    "data": null
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Conflict": {
+                "description": "Failed because data is already exist",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 409
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "Conflict"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "default": null,
+                                    "nullable": true
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 409,
+                                    "status": "Conflict",
+                                    "success": false,
+                                    "data": null
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "InternalServerError": {
+                "description": "Failed because there are some error in Server",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "number",
+                                    "default": 500
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "Internal Server Error"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "default": null,
+                                    "nullable": true
+                                }
+                            }
+                        },
+                        "examples": {
+                            "Example 1": {
+                                "value": {
+                                    "code": 500,
+                                    "status": "Internal Server Error",
+                                    "success": false,
+                                    "data": null
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
